@@ -2,11 +2,18 @@
   "name": "custom-formatter",
   "version": "1.0.0",
   "description": "",
+  "homepage": "https://github.com/kevinmnm/custom-formatter",
   "main": "./src/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "avaformat": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
+  "bin": {
+   "avaformat": "node ./src/index.js"
+  },
+  "engines": {
+      "node": "16.x"
+  },
+  "keywords": ["custom-formatter", "prettier", "formatter", "twig", "html"],
   "author": "Kevin J. Song",
   "license": "ISC"
 }
