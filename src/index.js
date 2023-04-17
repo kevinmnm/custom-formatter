@@ -202,6 +202,7 @@ module.exports = function customFormatter(content) {
       const line = linearg?.trim?.() || lineTrimmed;
       if (!line) return;
 
+      let id;
       let isStandalone = false;
       let isOpening = false;
       let isClosing = false;
@@ -211,6 +212,7 @@ module.exports = function customFormatter(content) {
          const standaloneTags = tagConfig.standalone;
          const openingTags = tagConfig.opening;
          const closingTags = tagConfig.closing;
+         id = tagConfig.id;
 
          isOpening = openingTags.some((pattern) => {
             if (pattern instanceof RegExp) {
@@ -255,7 +257,7 @@ module.exports = function customFormatter(content) {
          );
       }
       return {
-         id: tagConfigs.id,
+         id,
          standalone: isStandalone,
          closing: isClosing,
          opening: isOpening,
@@ -274,6 +276,7 @@ module.exports = function customFormatter(content) {
 
          const lineTagType = getTagTypes(lineTrimmed);
 
+         const lineTypeId = lineTagType.id;
          const isStandaloneLine = lineTagType.standalone;
          const isClosingLine = lineTagType.closing;
          const isOpeningLine = lineTagType.opening;
@@ -302,7 +305,9 @@ module.exports = function customFormatter(content) {
 
          const spaceCount = level * tabSpaces;
          const indent = " ".repeat(spaceCount);
-         const lineIndented = indent + lineTrimmed;
+         // const lineIndented = indent + lineTrimmed;
+         const lineIndented = `${indent}${lineTrimmed}${isClosingLine && level < 1 ? '\n' : ''}`;
+
          FINAL.push(lineIndented);
 
          if (isOpeningLine) {
