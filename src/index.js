@@ -51,9 +51,9 @@ module.exports = function customFormatter(content) {
 
    const singleLine = content
       // .replaceAll(/^(?!<pre)\s{2,}(?<!(<\/pre>))$/g, "") // Remove all spaces.
-      // .replaceAll(/\s{2,}/g, "") // Remove all double spaces.
+      .replaceAll(/\s{2,}/g, "") // Remove all double spaces.
       .replaceAll(/\n/g, "") // Remove all newlines.
-      .replaceAll(/^(?!<)\w+/g, "")
+      // .replaceAll(/^(?!<)\w+/g, "") // Is this working..?
 
    function replaceSpacesAndNewlinesOutsidePreTags(input) {
       let substrings = input.split(/(<pre>|<\/pre>)/i);
@@ -83,7 +83,8 @@ module.exports = function customFormatter(content) {
        * @desc Format twig operators/filters.
        **/
       .replaceAll(/({%)(.*)(%})/g, (match, $1, $2, $3) => {
-         // console.log({ match, $1, $2, $3 });
+      // .replaceAll(/({%)(.*)(%})(.+)/g, (match, $1, $2, $3, $4) => {
+         // console.log({ match, $1, $2, $3, $4 });
          const $1Trimmed = $1.trim();
          const $2Trimmed = $2.trim();
          const $3Trimmed = $3.trim();
@@ -102,9 +103,21 @@ module.exports = function customFormatter(content) {
          const final = isPreTag ? format : format.trim();
          return final;
       })
-      .replaceAll(/(\{\{\s*)/g, (match, $1, $2, $3) => {
-         console.log(match);
-      });
+      /**
+       * @type TWIG
+       * @desc Move any twig text node to new line.
+      **/
+      .replaceAll(/(\{%.+%\})(.+)(\{%)?(.*)/g, (match, $1, $2, $3, $4, $5, offset, string) => {
+         // console.log({match, $1, $2, $3, $4, $5});
+         const $2Trimmed = $2?.trim?.();
+         if (!$2Trimmed) return match;
+         const formatted = `${$1}\n${$2}`;
+         return formatted;
+      })
+      // .replaceAll(/(\{\{\s*)(.*)(\}\})/g, (match, $1, $2, $3) => {
+      //    const format = `\n${match}\n`;
+      //    return format;
+      // });
 
    const lines = html.split(/\n/);
 
@@ -144,7 +157,7 @@ module.exports = function customFormatter(content) {
          get twig() {
             const _ID = "twig";
             // const _STANDALONE_LIST = ["{% set", "{{"];
-            const _STANDALONE_LIST = ["set"];
+            const _STANDALONE_LIST = ["set", "extends", "include"];
             const _CLOSING_LIST = ["end", "else", "elseif"];
 
             const standaloneList = _STANDALONE_LIST.join("|");
@@ -242,6 +255,7 @@ module.exports = function customFormatter(content) {
          );
       }
       return {
+         id: tagConfigs.id,
          standalone: isStandalone,
          closing: isClosing,
          opening: isOpening,
@@ -279,8 +293,10 @@ module.exports = function customFormatter(content) {
          // );
          // console.log(level);
          // console.log();
-
-         if (isClosingLine) {
+         if (level < 0) {
+            console.error(`Looks like level is less than 0: ${level}. Needs to be fixed later for more precise formatting.`);
+         }
+         if (isClosingLine && level > 0) {
             --level;
          }
 
