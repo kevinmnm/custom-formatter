@@ -92,7 +92,10 @@ const html = singleLine
       const format = `${$1}\n${$2Format}`;
       const final = isPreTag ? format : format.trim();
       return final;
-   });
+   })
+   .replaceAll(/.*/g, (match, offset, string) => {
+      console.log(match);
+   })
 
 const lines = html.split(/\n/);
 
@@ -132,7 +135,7 @@ const CONFIGS = {
       get twig() {
          const _ID = "twig";
          // const _STANDALONE_LIST = ["{% set", "{{"];
-         const _STANDALONE_LIST = ["set"];
+         const _STANDALONE_LIST = ["set", "extends"];
          const _CLOSING_LIST = ["end", "else", "elseif"];
 
          const standaloneList = _STANDALONE_LIST.join("|");
@@ -277,4 +280,3 @@ function startFormatter(lines) {
 }
 
 startFormatter(lines);
-console.log(FINAL);
